@@ -1,0 +1,231 @@
+openapi: "3.0.0"
+info:
+  title: Money transfer API
+  version: 1.0.0
+tags:
+  - name: "accounts"
+    description: "Endpoints for holder accounts"
+  - name: "holders"
+    description: "Endpoints for holders"
+  - name: "payments"
+    description: "Endpoints for holder payments"
+paths:
+  /v1/holders:
+    post:
+      tags:
+        - "holders"
+      description: Create new holder
+      operationId: createHolder
+      summary: Create new holder
+      requestBody:
+        description: Holder payload
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/HolderPayload'
+      responses:
+        '201':
+          description: |-
+            Created
+
+  /v1/holders/{holderId}:
+    get:
+      tags:
+        - "holders"
+      description: Show holder information
+      operationId: getHolder
+      summary: Show holder information
+      parameters:
+        - name: holderId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: |-
+            200 response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Holder'
+  /v1/holders/{holderId}/accounts:
+    get:
+      tags:
+        - "accounts"
+      description: List all acounts
+      operationId: listAccounts
+      summary: List all accounts
+      parameters:
+        - name: holderId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: |-
+            200 response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Account'
+    post:
+      tags:
+        - "accounts"
+      description: Open account
+      operationId: openAccount
+      summary: Open account
+      parameters:
+        - name: holderId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Payment payload
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/OpenAccountPayload'
+      responses:
+        '201':
+          description: |-
+            Created
+
+  /v1/{holderId}/accounts/{currency}:
+    get:
+      tags:
+        - "accounts"
+      description: Get account information
+      operationId: getAccount
+      summary: Get account information
+      parameters:
+        - name: holderId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: currency
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: |-
+            200 response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+  /v1/{holderId}/accounts/{currency}/credit:
+    post:
+      tags:
+        - "accounts"
+      description: Credit account
+      operationId: creditAccount
+      summary: Credit account
+      parameters:
+        - name: holderId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: currency
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Credit payload
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/CreditPayload'
+      responses:
+        '202':
+          description: |-
+            Accepted
+  /v1/{holderId}/accounts/{currency}/payments:
+    post:
+      tags:
+        - "payments"
+      description: Perform payment on account
+      operationId: createPayment
+      parameters:
+        - name: holderId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: currency
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Payment payload
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/PaymentPayload'
+      responses:
+        '201':
+          description: |-
+            201 response
+
+components:
+  schemas:
+    Holder:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        phone:
+          type: string
+    Account:
+      type: object
+      properties:
+        currency:
+          type: string
+        cents:
+          type: number
+    PaymentPayload:
+      type: object
+      required:
+        - recipientId
+        - cents
+      properties:
+        recipientId:
+          type: string
+        cents:
+          type: number
+    HolderPayload:
+      type: object
+      required:
+        - name
+        - phone
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+    OpenAccountPayload:
+      type: object
+      required:
+        - currency
+      properties:
+        currency:
+          type: string
+    CreditPayload:
+      type: object
+      required:
+        - cents
+      properties:
+        cents:
+          type: number
